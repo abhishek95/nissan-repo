@@ -4,23 +4,29 @@ Created on Sat Mar 31 00:51:31 2018
 
 @author: abhis
 """
+
+
 import time
+import xmlrpc.client as xmlrpclib
+
+
+server = xmlrpclib.ServerProxy('http://localhost:8000')
+print (server)
+try:
+    print (server.update_loc(50,40))
+    print('success')
+except:
+    print ('failed')
+time.sleep(10)
+try:
+    print (server.update_loc(20,30))
+    print('success')
+except:
+    print('failed')
+    
+
+
 import paho.mqtt.client as mqtt
-import pickle
-
-shared = {}
-fp = open("shared.pkl","wb")
-buffer =  [(32,-72),(52,-72),(44,-72),(50,-72)]
-for item in buffer:
-    shared['lat'],shared['lon']= item
-    pickle.dump(shared, fp)
-
-
-def write_pickle(lat,lon):
-    shared['lat']=  lat
-    shared['lon']= lon
-    print ('writing pickle')
-    pickle.dump(shared, fp)
 
 broker = 'm11.cloudmqtt.com'
 port  = 14037
@@ -29,7 +35,7 @@ client.username_pw_set('api','test')
 topic = 'owntracks/phone/phone'
 mqtt.Client.connected_flag = False
 mqtt.Client.bad_connection_flag=False
-
+buffer =  [(32,-72),(52,-72)]
 
 
 def on_log(client, userdata, level, buf):
@@ -51,7 +57,6 @@ def on_message(client, userdata, msg):
     lon = payload['lon']
     lat = payload['lat']
     print ('%s : lat=%f,lon=%f'%(msg.topic,lat,lon))
-    write_pickle(lat,lon)
     
 
 client.on_connect = on_connect
@@ -73,11 +78,8 @@ while(not client.connected_flag and not client.bad_connection_flag):
     time.sleep(1)
 
 client.subscribe(topic)
-time.sleep(500)
+time.sleep(50)
 client.loop_stop()
 
 
 client.disconnect()
-
-
-
