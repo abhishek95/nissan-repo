@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Current Location</title>
+    <script src="{{url_for('static', filename='react.js')}}"></script>
+    <script src="{{url_for('static', filename='react.min.js')}}"></script>
+    <script src="{{url_for('static', filename='react-dom.min.js')}}"></script>
+    <script src="{{url_for('static', filename='browser.min.js')}}"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
+
+</head>
+
+<body>
+
+    <h1>Hey there</h1>
+    <p>
+        lat = {{lat}}
+        lon = {{lon}}
+    </p>
+    
+    <div id='map_div'></div>
+    <script type='text/babel'>
+        var Map = React.createClass({
+            render:function(){
+                return (<h3>react test2</h3>)
+            }
+        });
+        
+        ReactDOM.render(<Map />, document.getElementById('map_div'));
+    </script>
+    
+    <div id='map' style='width: 800px; height: 600px;'></div>
+    <script>
+          mapboxgl.accessToken = 'pk.eyJ1IjoiYWJoaXNoZWs5NSIsImEiOiJjamZnN3NneGUwdGx5MzNsOXB5ajQ4eHQxIn0.YIi1ClkL-V2ndbLtDqhgSQ';
+          var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v10',
+            center : [{{lon}},{{lat}}],
+            zoom: 5
+          });
+          
+          map.on('load', function() {
+            map.loadImage('{{url_for('static', filename='pointer.png')}}', function(error, image) {
+                if (error) throw error;
+                map.addImage('cat', image);
+                map.addLayer({
+                    "id": "points",
+                    "type": "symbol",
+                    "source": {
+                        "type": "geojson",
+                        "data": {
+                            "type": "FeatureCollection",
+                            "features": [{
+                                "type": "Feature",
+                                "geometry": {
+                                    "type": "Point",
+                                    "coordinates": [{{lon}}, {{lat}}]
+                                }
+                            }]
+                        }
+                    },
+                    "layout": {
+                        "icon-image": "cat",
+                        "icon-size": 0.25
+                    }
+                });
+            });
+        });
+    </script>
+
+    
+</body>
+
+</html>
