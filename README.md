@@ -35,3 +35,6 @@ webpage now loads the map through react and points the level
 
 update10:
 learning how to auto update webpage if location is changed in flask (through sockets)
+
+update11:
+found a way of sharing location (hopefully) through xmlrpc. client side is failing. sorting it out.
