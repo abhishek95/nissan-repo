@@ -1,5 +1,8 @@
 # nissan-repo
 
+## Run 3 servers: syncmanger, sokcettestserver, message in given order
+## used Owntracks and MQTT cloud broker to recieve locations
+
 update1:
 working on connecting Owntracks with mqtt
 
