@@ -38,3 +38,26 @@ learning how to auto update webpage if location is changed in flask (through soc
 
 update11:
 found a way of sharing location (hopefully) through xmlrpc. client side is failing. sorting it out.
+
+update12:
+added JS code to continuously request loaction update from Web client.
+Sockets are used
+
+update13:
+XMLRPC was failing for client side on message.py
+Implementing backup method- pickling files
+
+update14:
+pickling was not happening at run-time
+Trying 'memcache' now
+
+update15:
+Previous method also failed for syncronising.
+Moving to Multi-processing managers.
+
+update16:
+Multiprocessing managers working well. 
+All components now working fully
+
+update17:
+adding comments
