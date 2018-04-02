@@ -1,14 +1,18 @@
-
+'''
+main flask server for hosting app
+'''
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit,send
 from multiprocessing.managers import SyncManager
 import logging
 
 
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 ####################################################################
+'''
+Code to syncronise incoming location from MQTT client
+'''
 class MyManager(SyncManager):
     pass
 
@@ -19,6 +23,7 @@ manager = MyManager(("127.0.0.1", 8000), authkey="password")
 manager.connect()
 syncdict = manager.syncdict()
 ###########################################################################
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
@@ -33,6 +38,7 @@ def index():
     logger.info('Serving root')
     return render_template('sockettestclient.html', **values)
 
+#socket connection from Web client
 @socketio.on('client_connected')
 def handle_client_connect_event(json):
     logger.info('responding to request')
@@ -53,7 +59,7 @@ def value_changed(message):
     update_message = values
     emit('update value', update_message, broadcast=True)
         
-
+#run app
 if __name__ == '__main__':
     logger.info('Running socket IO')
     socketio.run(app, host='localhost')

@@ -1,3 +1,7 @@
+'''
+Sync manager (host server) to syncronise data between flask app and MQTT client
+
+'''
 from multiprocessing.managers import SyncManager
 
 
