@@ -1,17 +1,24 @@
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit,send
-import pickle
+from multiprocessing.managers import SyncManager
 import logging
 
 
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+####################################################################
+class MyManager(SyncManager):
+    pass
 
-#fp = open("shared.pkl",'rb')
-fp = open("sample_loc.txt",'r')
+MyManager.register("syncdict")
 
+
+manager = MyManager(("127.0.0.1", 8000), authkey="password")
+manager.connect()
+syncdict = manager.syncdict()
+###########################################################################
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
@@ -34,14 +41,12 @@ def handle_client_connect_event(json):
 @socketio.on('value changed')
 def value_changed(message):
     try:
-        #shared = pickle.load(fp)
-        #values['lat'] = shared['lat']
-        #values['lon'] = shared['lon']
-        line = fp.readline()[:-1].split(",")
-        values['lat'] =line[0]
-        values['lon'] =line[1]
-        print (values)
-        
+        values['lat'] = syncdict.get('lat')
+        values['lon'] = syncdict.get('lon')
+        #line = fp.readline()[:-1].split(",")
+        #values['lat'] =line[0]
+        #values['lon'] =line[1]
+        print (values)  
     except:
         print ('no update')
         

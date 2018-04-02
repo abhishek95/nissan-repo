@@ -6,22 +6,45 @@ Created on Sat Mar 31 00:51:31 2018
 """
 import time
 import paho.mqtt.client as mqtt
-import pickle
 
-shared = {}
-fp = open("shared.pkl","wb")
-buffer =  [(32,-72),(52,-72),(44,-72),(50,-72)]
-for item in buffer:
-    shared['lat'],shared['lon']= item
-    pickle.dump(shared, fp)
+from multiprocessing.managers import SyncManager
 
 
-def write_pickle(lat,lon):
-    shared['lat']=  lat
-    shared['lon']= lon
-    print ('writing pickle')
-    pickle.dump(shared, fp)
+class MyManager(SyncManager):
+    pass
 
+MyManager.register("syncdict")
+
+
+manager = MyManager(("127.0.0.1", 8000), authkey="password")
+manager.connect()
+syncdict = manager.syncdict()
+print ("dict = %s" % (dir(syncdict)))
+
+
+
+def sync_payload(lat,lon):
+    try:
+        #updae latitutde 
+        #if the key doesn't exist create it
+         key='lat'
+         if not syncdict.has_key(key):
+             syncdict.update([(key, 0)])
+         else:
+              syncdict.update([(key,lat) ])
+        #update longitude
+         key='lon'
+         if not syncdict.has_key(key):
+             syncdict.update([(key, 0)])
+         #increment key value every sleep seconds
+         #then print syncdict
+         else:
+              syncdict.update([(key,lon) ])
+
+    except KeyboardInterrupt:
+         print ("Killed client")
+
+##########################################################################
 broker = 'm11.cloudmqtt.com'
 port  = 14037
 client = mqtt.Client('api')
@@ -51,7 +74,7 @@ def on_message(client, userdata, msg):
     lon = payload['lon']
     lat = payload['lat']
     print ('%s : lat=%f,lon=%f'%(msg.topic,lat,lon))
-    write_pickle(lat,lon)
+    sync_payload(lat,lon)
     
 
 client.on_connect = on_connect
@@ -73,7 +96,7 @@ while(not client.connected_flag and not client.bad_connection_flag):
     time.sleep(1)
 
 client.subscribe(topic)
-time.sleep(500)
+raw_input("Press any key to kill server".center(50, "-"))
 client.loop_stop()
 
 

@@ -23,10 +23,7 @@
      <div id='map' style='width: 800px; height: 600px;'></div>
     <script type="text/javascript" charset="utf-8">
             var mylat = 33
-            var mylon = -72
-            console.log(mylat,mylon)
-            console.log({{lat}},{{lon}})
-            
+            var mylon = -72           
             
             var socket = io.connect('http://' + document.domain + ':' + location.port);
             
@@ -48,7 +45,7 @@
             setInterval(function(){
                                     socket.emit('value changed', 'get update');
                                     
-                        },1000);
+                        },10000);
             
            </script>
            
