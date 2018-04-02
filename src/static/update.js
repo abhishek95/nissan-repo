@@ -6,3 +6,5 @@ function update_values() {
                     $("#lon").text(data.lon)
                 });
         }
+        
+        

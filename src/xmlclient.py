@@ -7,7 +7,7 @@ Created on Sat Mar 31 00:51:31 2018
 
 
 import time
-import xmlrpc.client as xmlrpclib
+import xmlrpclib
 
 
 server = xmlrpclib.ServerProxy('http://localhost:8000')

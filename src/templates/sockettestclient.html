@@ -1,78 +1,66 @@
-<!doctype html>
-<html>
 
+<!doctype HTML>
+<html>
 <head>
-    <title>Current Location</title>
+    <title>Synchronized Sliders</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.6/socket.io.js"></script>
     <script src="{{url_for('static', filename='react.js')}}"></script>
     <script src="{{url_for('static', filename='react.min.js')}}"></script>
     <script src="{{url_for('static', filename='react-dom.min.js')}}"></script>
-    <script src="{{url_for('static', filename='browser.min.js')}}"></script>    
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
-    
+    <script src="{{url_for('static', filename='browser.min.js')}}"></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
 
+    
 </head>
-
 <body>
+    <h1>Synchronized Sliders!</h1>
 
-    <h1>Hey there</h1>
-    <p>
-        lat = {{lat}}
-        lon = {{lon}}
-    </p>
+    <h1>{{lat}},{{lon}}</h1>
     
-    <div id='map_div'></div>
-    
-    <script type='text/babel'>
-        var Map = React.createClass({
-            render:function(){
-                return (
-                <div>
-                    <h3>react test2</h3>
-                    <p>{{lat}},{{lon}}</p>
-                    <p></p>
-                </div>)
-            }
-        });
-        
-        ReactDOM.render(<Map />, document.getElementById('map_div'));
-    </script>
-    
-    <div id='map' style='width: 800px; height: 600px;'></div>
-    <script type="text/javascript">
-        
-            var lat = 33
-            var lon = -72
-        
-      
-            var socket = io.connect('127.0.0.1');
+     <div id='map' style='width: 800px; height: 600px;'></div>
+    <script type="text/javascript" charset="utf-8">
+            var mylat = 33
+            var mylon = -72
+            console.log(mylat,mylon)
+            console.log({{lat}},{{lon}})
+            
+            
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
             
             socket.on('connect', function() {
-                socket.emit('connect', {data: 'I\'m connected!'});
+            // we emit a connected message to let knwo the client that we are connected.
+            console.log("trying to connect")
+            socket.emit('client_connected', {data: 'New client!'});
             });
             
+           
+            
+            socket.on('update value', function(msg) {
+                        console.log(msg)
+                        mylat = {{lat}}
+                        mylon = {{lon}}
+                        console.log(mylat,mylon)
+                        });
+                        
             setInterval(function(){
                                     socket.emit('value changed', 'get update');
+                                    
                         },1000);
-                        
-            socket.on('update value', function(msg) {
-                        lat = {{lat}}
-                        lon = {{lon}}
-                        });
             
-
-    
-    
-    
-          mapboxgl.accessToken = 'pk.eyJ1IjoiYWJoaXNoZWs5NSIsImEiOiJjamZnN3NneGUwdGx5MzNsOXB5ajQ4eHQxIn0.YIi1ClkL-V2ndbLtDqhgSQ';
+           </script>
+           
+           
+           <script> 
+            mapboxgl.accessToken = 'pk.eyJ1IjoiYWJoaXNoZWs5NSIsImEiOiJjamZnN3NneGUwdGx5MzNsOXB5ajQ4eHQxIn0.YIi1ClkL-V2ndbLtDqhgSQ';
           var map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/streets-v10',
-            center : [lon,lat],
+            center : [{{lon}},{{lat}}],
             zoom: 5
           });
+          console.log('map lib loaded')
           
           map.on('load', function() {
             map.loadImage('{{url_for('static', filename='pointer.png')}}', function(error, image) {
@@ -89,7 +77,7 @@
                                 "type": "Feature",
                                 "geometry": {
                                     "type": "Point",
-                                    "coordinates": [lon, lat]
+                                    "coordinates": [{{lon}}, {{lat}]
                                 }
                             }]
                         }
@@ -100,10 +88,8 @@
                     }
                 });
             });
-        });
+        });             
+
     </script>
-
-    
 </body>
-
 </html>
