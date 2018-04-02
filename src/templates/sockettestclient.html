@@ -11,7 +11,8 @@
     <script src="{{url_for('static', filename='browser.min.js')}}"></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
-
+    <script src='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js'></script>
+    <link href='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.css' rel='stylesheet' />
     
 </head>
 <body>
@@ -39,56 +40,39 @@
             
             socket.on('update value', function(msg) {
                         console.log(msg)
-                        mylat = {{lat}}
-                        mylon = {{lon}}
+                        mylat = msg['lat']
+                        mylon = msg['lon']
                         console.log(mylat,mylon)
                         });
                         
             setInterval(function(){
                                     socket.emit('value changed', 'get update');
                                     
-                        },10000);
+                        },1000);
             
            </script>
            
            
            <script> 
-            mapboxgl.accessToken = 'pk.eyJ1IjoiYWJoaXNoZWs5NSIsImEiOiJjamZnN3NneGUwdGx5MzNsOXB5ajQ4eHQxIn0.YIi1ClkL-V2ndbLtDqhgSQ';
-          var map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v10',
-            center : [{{lon}},{{lat}}],
-            zoom: 5
-          });
-          console.log('map lib loaded')
-          
-          map.on('load', function() {
-            map.loadImage('{{url_for('static', filename='pointer.png')}}', function(error, image) {
-                if (error) throw error;
-                map.addImage('cat', image);
-                map.addLayer({
-                    "id": "points",
-                    "type": "symbol",
-                    "source": {
-                        "type": "geojson",
-                        "data": {
-                            "type": "FeatureCollection",
-                            "features": [{
-                                "type": "Feature",
-                                "geometry": {
-                                    "type": "Point",
-                                    "coordinates": [{{lon}}, {{lat}}]
-                                }
-                            }]
-                        }
-                    },
-                    "layout": {
-                        "icon-image": "cat",
-                        "icon-size": 0.25
-                    }
-                });
+            L.mapbox.accessToken = 'pk.eyJ1IjoiYWJoaXNoZWs5NSIsImEiOiJjamZnN3NneGUwdGx5MzNsOXB5ajQ4eHQxIn0.YIi1ClkL-V2ndbLtDqhgSQ';
+          var map = L.mapbox.map('map', 'mapbox.light').setView([mylat, mylon], 6);
+
+            var marker = L.marker([mylon, mylat], {
+                icon: L.mapbox.marker.icon({
+                  'marker-color': '#f86767'
+                })
             });
-        });             
+
+            var t = 0;
+            window.setInterval(function() {
+                // Making a lissajous curve just for fun.
+                // Create your own animated path here.
+                marker.setLatLng(L.latLng(
+                    mylat,mylon));
+            }, 50);
+            
+            marker.addTo(map);
+                      
 
     </script>
 </body>
