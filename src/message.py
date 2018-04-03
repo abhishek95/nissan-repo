@@ -6,9 +6,11 @@ Created on Sat Mar 31 00:51:31 2018
 """
 import time
 import paho.mqtt.client as mqtt
-
 from multiprocessing.managers import SyncManager
 
+##################################################################
+######code for syncronising payload when new location arrives#####
+######send to flask app
 
 class MyManager(SyncManager):
     pass
@@ -45,6 +47,8 @@ def sync_payload(lat,lon):
          print ("Killed client")
 
 ##########################################################################
+         
+#######################code to connect with MQTT broker####################
 broker = 'm11.cloudmqtt.com'
 port  = 14037
 client = mqtt.Client('api')
@@ -54,7 +58,7 @@ mqtt.Client.connected_flag = False
 mqtt.Client.bad_connection_flag=False
 
 
-
+#callback response functions
 def on_log(client, userdata, level, buf):
     print('log:',buf)
     
@@ -76,19 +80,21 @@ def on_message(client, userdata, msg):
     print ('%s : lat=%f,lon=%f'%(msg.topic,lat,lon))
     sync_payload(lat,lon)
     
-
+#assigning manual callbacks
 client.on_connect = on_connect
 client.on_log = on_log
 client.on_message = on_message
 client.on_disconnect=on_disconnect
+
 ##########################################
+
+#try connection
 print ('connecting to {}'.format(broker))
 
 try:
     client.connect(broker,port)
 except:
     print('error connecting')
-########################################
 
 client.loop_start()
 while(not client.connected_flag and not client.bad_connection_flag):
